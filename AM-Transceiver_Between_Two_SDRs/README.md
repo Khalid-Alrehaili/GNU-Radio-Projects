@@ -6,6 +6,8 @@ This project explores the transmission of an audio file from the transmitter of 
 
 To address this, we transmit a portion of the carrier signal along with the audio. On the receiver side, we detect the carrier peak and use it to re-center the clock, achieving relatively good synchronization between the two SDRs.
 
+**Note:** Provide an audio file inside the same folder as the GRC files for the transmitters with the name **`audio.wav`**
+ 
 # Table of Contents
 - [AM Transmitter & Receiver for ADALM-PLUTO SDR](GNU-Radio-Files_ADALM-PLUTO)
 - [AM Transmitter & Receiver for USRP B200 Mini](GNU-Radio-Files_USRP-B200mini)

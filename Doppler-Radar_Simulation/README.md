@@ -1,6 +1,9 @@
 # CW Doppler Radar Simple Simulation
 
-A CW Doppler radar simulation implemented in [GNU Radio](https://www.gnuradio.org/)
+A CW Doppler radar simulation made using [GNU Radio](https://www.gnuradio.org/)
+
+# Table of Contents
+- [GNU Radio Simulation Files](GNU-Radio-Files)
 
 ## How does it work?
 The simulation is divided into three main parts which are:
