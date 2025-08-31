@@ -1,4 +1,4 @@
-#FM Transceiver (Same SDR)
+# FM Transceiver (Same SDR)
 
 The goal of this project is to transmit an audio file between the transmitter and receiver of the same SDR (clock synchronization is garnteed) using frequency modulation (FM).
 
