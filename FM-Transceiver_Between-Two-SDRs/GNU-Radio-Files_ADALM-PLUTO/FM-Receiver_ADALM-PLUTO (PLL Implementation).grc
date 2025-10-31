@@ -11,7 +11,7 @@ options:
     gen_linking: dynamic
     generate_options: qt_gui
     hier_block_src_path: '.:'
-    id: FM_Transmitter_ADALM_PLUTO
+    id: FM_Receiver_ADALM_PLUTO
     max_nouts: '0'
     output_language: python
     placement: (0,0)
@@ -22,7 +22,7 @@ options:
     run_options: prompt
     sizing_mode: fixed
     thread_safe_setters: ''
-    title: FM_Transmitter_ADALM_PLUTO
+    title: FM_Receiver_ADALM_PLUTO
     window_size: (1000,1000)
   states:
     bus_sink: false
@@ -33,34 +33,13 @@ options:
     state: enabled
 
 blocks:
-- name: attenuation
-  id: variable_qtgui_range
-  parameters:
-    comment: ''
-    gui_hint: ''
-    label: attenuation
-    min_len: '200'
-    orient: QtCore.Qt.Horizontal
-    rangeType: float
-    start: '0'
-    step: '1'
-    stop: '89'
-    value: '10'
-    widget: counter_slider
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [480, 8.0]
-    rotation: 0
-    state: enabled
 - name: audio_filter
   id: variable_low_pass_filter_taps
   parameters:
     beta: '6.76'
     comment: ''
     cutoff_freq: quad_rate/(interpolation*2)
-    gain: interpolation
+    gain: '1'
     samp_rate: quad_rate
     value: ''
     width: quad_rate/(interpolation*4)
@@ -69,15 +48,15 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [592, 8.0]
+    coordinate: [520, 8.0]
     rotation: 0
     state: enabled
-- name: freq_Tx
+- name: freq_Rx
   id: variable_qtgui_range
   parameters:
     comment: ''
     gui_hint: ''
-    label: freq_Tx
+    label: freq_Rx
     min_len: '200'
     orient: QtCore.Qt.Horizontal
     rangeType: float
@@ -90,7 +69,28 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [352, 8.0]
+    coordinate: [280, 8.0]
+    rotation: 0
+    state: enabled
+- name: gain_slider
+  id: variable_qtgui_range
+  parameters:
+    comment: ''
+    gui_hint: ''
+    label: gain_slider
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: '0'
+    step: '0.01'
+    stop: '1'
+    value: '1'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [416, 8.0]
     rotation: 0
     state: enabled
 - name: interpolation
@@ -102,7 +102,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [176, 80.0]
+    coordinate: [176, 152.0]
     rotation: 0
     state: enabled
 - name: quad_rate
@@ -114,7 +114,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [264, 8.0]
+    coordinate: [176, 80.0]
     rotation: 0
     state: enabled
 - name: samp_rate
@@ -129,58 +129,99 @@ blocks:
     coordinate: [176, 8.0]
     rotation: 0
     state: enabled
-- name: blocks_vco_c_0_0
-  id: blocks_vco_c
-  parameters:
-    affinity: ''
-    alias: ''
-    amplitude: '1'
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    samp_rate: quad_rate
-    sensitivity: 2*pi*75e3
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [488, 232.0]
-    rotation: 0
-    state: enabled
-- name: blocks_wavfile_source_0
-  id: blocks_wavfile_source
+- name: analog_pll_freqdet_cf_0
+  id: analog_pll_freqdet_cf
   parameters:
     affinity: ''
     alias: ''
     comment: ''
-    file: audio.mp3
+    max_freq: pi
     maxoutbuf: '0'
+    min_freq: -pi
     minoutbuf: '0'
-    nchan: '1'
-    repeat: 'True'
+    w: -pi/100
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [40, 240.0]
+    coordinate: [296, 320.0]
     rotation: 0
     state: enabled
-- name: iio_pluto_sink_0
-  id: iio_pluto_sink
+- name: audio_sink_0_0_0
+  id: audio_sink
   parameters:
     affinity: ''
     alias: ''
-    attenuation1: attenuation
+    comment: ''
+    device_name: ''
+    num_inputs: '1'
+    ok_to_block: 'True'
+    samp_rate: samp_rate
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [984, 336.0]
+    rotation: 0
+    state: enabled
+- name: blocks_multiply_const_vxx_0
+  id: blocks_multiply_const_vxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    const: samp_rate/75e3*1/(2*pi)*10
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [544, 336.0]
+    rotation: 0
+    state: enabled
+- name: fir_filter_xxx_0
+  id: fir_filter_xxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    decim: interpolation
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_delay: '0'
+    taps: audio_filter
+    type: fff
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [752, 328.0]
+    rotation: 0
+    state: enabled
+- name: iio_pluto_source_0
+  id: iio_pluto_source
+  parameters:
+    affinity: ''
+    alias: ''
     bandwidth: '20000000'
+    bbdc: 'True'
     buffer_size: '32768'
     comment: ''
-    cyclic: 'False'
     filter: ''
     filter_source: '''Auto'''
     fpass: '0'
-    frequency: int(freq_Tx)
+    frequency: int(freq_Rx)
     fstop: '0'
-    len_tag_key: ''
+    gain1: '''slow_attack'''
+    len_tag_key: packet_len
+    manual_gain1: '71'
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    quadrature: 'True'
+    rfdc: 'True'
     samplerate: quad_rate
     type: fc32
     uri: ''
@@ -188,7 +229,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [824, 188.0]
+    coordinate: [32, 260.0]
     rotation: 0
     state: enabled
 - name: import_0
@@ -204,30 +245,12 @@ blocks:
     coordinate: [8, 112.0]
     rotation: 0
     state: enabled
-- name: interp_fir_filter_xxx_0
-  id: interp_fir_filter_xxx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    interp: interpolation
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    samp_delay: '0'
-    taps: audio_filter
-    type: fff
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [232, 240.0]
-    rotation: 0
-    state: enabled
 
 connections:
-- [blocks_vco_c_0_0, '0', iio_pluto_sink_0, '0']
-- [blocks_wavfile_source_0, '0', interp_fir_filter_xxx_0, '0']
-- [interp_fir_filter_xxx_0, '0', blocks_vco_c_0_0, '0']
+- [analog_pll_freqdet_cf_0, '0', blocks_multiply_const_vxx_0, '0']
+- [blocks_multiply_const_vxx_0, '0', fir_filter_xxx_0, '0']
+- [fir_filter_xxx_0, '0', audio_sink_0_0_0, '0']
+- [iio_pluto_source_0, '0', analog_pll_freqdet_cf_0, '0']
 
 metadata:
   file_format: 1

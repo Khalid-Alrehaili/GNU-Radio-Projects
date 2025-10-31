@@ -12,7 +12,6 @@
 from PyQt5 import Qt
 from gnuradio import qtgui
 from PyQt5 import QtCore
-from gnuradio import analog
 from gnuradio import blocks
 from gnuradio import filter
 from gnuradio.filter import firdes
@@ -67,8 +66,10 @@ class FM_Transmitter_ADALM_PLUTO(gr.top_block, Qt.QWidget):
         # Variables
         ##################################################
         self.samp_rate = samp_rate = int(48e3)
-        self.quad_rate = quad_rate = samp_rate*4
+        self.interpolation = interpolation = 4
+        self.quad_rate = quad_rate = samp_rate*interpolation
         self.freq_Tx = freq_Tx = int(1.234e9)
+        self.audio_filter = audio_filter = firdes.low_pass(interpolation, quad_rate, quad_rate/(interpolation*2), quad_rate/(interpolation*4), window.WIN_HAMMING, 6.76)
         self.attenuation = attenuation = 10
 
         ##################################################
@@ -81,6 +82,8 @@ class FM_Transmitter_ADALM_PLUTO(gr.top_block, Qt.QWidget):
         self._attenuation_range = qtgui.Range(0, 89, 1, 10, 200)
         self._attenuation_win = qtgui.RangeWidget(self._attenuation_range, self.set_attenuation, "attenuation", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._attenuation_win)
+        self.interp_fir_filter_xxx_0 = filter.interp_fir_filter_fff(interpolation, audio_filter)
+        self.interp_fir_filter_xxx_0.declare_sample_delay(0)
         self.iio_pluto_sink_0 = iio.fmcomms2_sink_fc32('' if '' else iio.get_pluto_uri(), [True, True], 32768, False)
         self.iio_pluto_sink_0.set_len_tag_key('')
         self.iio_pluto_sink_0.set_bandwidth(20000000)
@@ -89,31 +92,15 @@ class FM_Transmitter_ADALM_PLUTO(gr.top_block, Qt.QWidget):
         self.iio_pluto_sink_0.set_attenuation(0, attenuation)
         self.iio_pluto_sink_0.set_filter_params('Auto', '', 0, 0)
         self.blocks_wavfile_source_0 = blocks.wavfile_source('audio.mp3', True)
-        self.band_pass_filter_0 = filter.interp_fir_filter_fff(
-            1,
-            firdes.band_pass(
-                1,
-                samp_rate,
-                200,
-                10e3,
-                100,
-                window.WIN_HAMMING,
-                6.76))
-        self.analog_wfm_tx_0 = analog.wfm_tx(
-        	audio_rate=samp_rate,
-        	quad_rate=quad_rate,
-        	tau=(75e-6),
-        	max_dev=75e3,
-        	fh=(-1.0),
-        )
+        self.blocks_vco_c_0_0 = blocks.vco_c(quad_rate, (2*pi*75e3), 1)
 
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.analog_wfm_tx_0, 0), (self.iio_pluto_sink_0, 0))
-        self.connect((self.band_pass_filter_0, 0), (self.analog_wfm_tx_0, 0))
-        self.connect((self.blocks_wavfile_source_0, 0), (self.band_pass_filter_0, 0))
+        self.connect((self.blocks_vco_c_0_0, 0), (self.iio_pluto_sink_0, 0))
+        self.connect((self.blocks_wavfile_source_0, 0), (self.interp_fir_filter_xxx_0, 0))
+        self.connect((self.interp_fir_filter_xxx_0, 0), (self.blocks_vco_c_0_0, 0))
 
 
     def closeEvent(self, event):
@@ -129,14 +116,22 @@ class FM_Transmitter_ADALM_PLUTO(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.set_quad_rate(self.samp_rate*4)
-        self.band_pass_filter_0.set_taps(firdes.band_pass(1, self.samp_rate, 200, 10e3, 100, window.WIN_HAMMING, 6.76))
+        self.set_quad_rate(self.samp_rate*self.interpolation)
+
+    def get_interpolation(self):
+        return self.interpolation
+
+    def set_interpolation(self, interpolation):
+        self.interpolation = interpolation
+        self.set_audio_filter(firdes.low_pass(self.interpolation, self.quad_rate, self.quad_rate/(self.interpolation*2), self.quad_rate/(self.interpolation*4), window.WIN_HAMMING, 6.76))
+        self.set_quad_rate(self.samp_rate*self.interpolation)
 
     def get_quad_rate(self):
         return self.quad_rate
 
     def set_quad_rate(self, quad_rate):
         self.quad_rate = quad_rate
+        self.set_audio_filter(firdes.low_pass(self.interpolation, self.quad_rate, self.quad_rate/(self.interpolation*2), self.quad_rate/(self.interpolation*4), window.WIN_HAMMING, 6.76))
         self.iio_pluto_sink_0.set_samplerate(self.quad_rate)
 
     def get_freq_Tx(self):
@@ -145,6 +140,13 @@ class FM_Transmitter_ADALM_PLUTO(gr.top_block, Qt.QWidget):
     def set_freq_Tx(self, freq_Tx):
         self.freq_Tx = freq_Tx
         self.iio_pluto_sink_0.set_frequency(int(self.freq_Tx))
+
+    def get_audio_filter(self):
+        return self.audio_filter
+
+    def set_audio_filter(self, audio_filter):
+        self.audio_filter = audio_filter
+        self.interp_fir_filter_xxx_0.set_taps(self.audio_filter)
 
     def get_attenuation(self):
         return self.attenuation

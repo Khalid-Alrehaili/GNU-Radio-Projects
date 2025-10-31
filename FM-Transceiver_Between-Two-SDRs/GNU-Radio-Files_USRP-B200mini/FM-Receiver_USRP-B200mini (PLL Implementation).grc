@@ -33,6 +33,24 @@ options:
     state: enabled
 
 blocks:
+- name: audio_filter
+  id: variable_low_pass_filter_taps
+  parameters:
+    beta: '6.76'
+    comment: ''
+    cutoff_freq: quad_rate/(interpolation*2)
+    gain: '1'
+    samp_rate: quad_rate
+    value: ''
+    width: quad_rate/(interpolation*4)
+    win: window.WIN_HAMMING
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [488, 8.0]
+    rotation: 0
+    state: enabled
 - name: freq_Rx
   id: variable_qtgui_range
   parameters:
@@ -66,13 +84,13 @@ blocks:
     start: '0'
     step: '0.01'
     stop: '1'
-    value: '0.5'
+    value: '0'
     widget: counter_slider
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [392, 8.0]
+    coordinate: [384, 8.0]
     rotation: 0
     state: enabled
 - name: interpolation
@@ -84,7 +102,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [168, 152.0]
+    coordinate: [176, 152.0]
     rotation: 0
     state: enabled
 - name: quad_rate
@@ -111,23 +129,22 @@ blocks:
     coordinate: [176, 8.0]
     rotation: 0
     state: enabled
-- name: analog_nbfm_rx_0
-  id: analog_nbfm_rx
+- name: analog_pll_freqdet_cf_0
+  id: analog_pll_freqdet_cf
   parameters:
     affinity: ''
     alias: ''
-    audio_rate: samp_rate
     comment: ''
-    max_dev: 75e3
+    max_freq: pi
     maxoutbuf: '0'
+    min_freq: -pi
     minoutbuf: '0'
-    quad_rate: quad_rate
-    tau: 75e-6
+    w: -pi/100
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [392, 248.0]
+    coordinate: [424, 256.0]
     rotation: 0
     state: enabled
 - name: audio_sink_0_0
@@ -144,32 +161,44 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [808, 272.0]
+    coordinate: [1112, 272.0]
     rotation: 0
     state: enabled
-- name: band_pass_filter_0
-  id: band_pass_filter
+- name: blocks_multiply_const_vxx_0
+  id: blocks_multiply_const_vxx
   parameters:
     affinity: ''
     alias: ''
-    beta: '6.76'
     comment: ''
-    decim: '1'
-    gain: gain_slider
-    high_cutoff_freq: 10e3
-    interp: '1'
-    low_cutoff_freq: '100'
+    const: samp_rate/75e3*1/(2*pi)*10
     maxoutbuf: '0'
     minoutbuf: '0'
-    samp_rate: samp_rate
-    type: interp_fir_filter_fff
-    width: '100'
-    win: window.WIN_HAMMING
+    type: float
+    vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [592, 220.0]
+    coordinate: [656, 272.0]
+    rotation: 0
+    state: enabled
+- name: fir_filter_xxx_0
+  id: fir_filter_xxx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    decim: interpolation
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    samp_delay: '0'
+    taps: audio_filter
+    type: fff
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [840, 264.0]
     rotation: 0
     state: enabled
 - name: import_0
@@ -183,168 +212,6 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate: [8, 112.0]
-    rotation: 0
-    state: enabled
-- name: qtgui_freq_sink_x_0
-  id: qtgui_freq_sink_x
-  parameters:
-    affinity: ''
-    alias: ''
-    alpha1: '1.0'
-    alpha10: '1.0'
-    alpha2: '1.0'
-    alpha3: '1.0'
-    alpha4: '1.0'
-    alpha5: '1.0'
-    alpha6: '1.0'
-    alpha7: '1.0'
-    alpha8: '1.0'
-    alpha9: '1.0'
-    autoscale: 'False'
-    average: '1.0'
-    axislabels: 'True'
-    bw: samp_rate
-    color1: '"blue"'
-    color10: '"dark blue"'
-    color2: '"red"'
-    color3: '"green"'
-    color4: '"black"'
-    color5: '"cyan"'
-    color6: '"magenta"'
-    color7: '"yellow"'
-    color8: '"dark red"'
-    color9: '"dark green"'
-    comment: ''
-    ctrlpanel: 'False'
-    fc: '0'
-    fftsize: '1024'
-    freqhalf: 'True'
-    grid: 'False'
-    gui_hint: ''
-    label: Relative Gain
-    label1: ''
-    label10: ''''''
-    label2: ''''''
-    label3: ''''''
-    label4: ''''''
-    label5: ''''''
-    label6: ''''''
-    label7: ''''''
-    label8: ''''''
-    label9: ''''''
-    legend: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    name: '""'
-    nconnections: '1'
-    norm_window: 'False'
-    showports: 'False'
-    tr_chan: '0'
-    tr_level: '0.0'
-    tr_mode: qtgui.TRIG_MODE_FREE
-    tr_tag: '""'
-    type: complex
-    units: dB
-    update_time: '0.10'
-    width1: '1'
-    width10: '1'
-    width2: '1'
-    width3: '1'
-    width4: '1'
-    width5: '1'
-    width6: '1'
-    width7: '1'
-    width8: '1'
-    width9: '1'
-    wintype: window.WIN_BLACKMAN_hARRIS
-    ymax: '10'
-    ymin: '-140'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [392, 360.0]
-    rotation: 0
-    state: enabled
-- name: qtgui_freq_sink_x_1
-  id: qtgui_freq_sink_x
-  parameters:
-    affinity: ''
-    alias: ''
-    alpha1: '1.0'
-    alpha10: '1.0'
-    alpha2: '1.0'
-    alpha3: '1.0'
-    alpha4: '1.0'
-    alpha5: '1.0'
-    alpha6: '1.0'
-    alpha7: '1.0'
-    alpha8: '1.0'
-    alpha9: '1.0'
-    autoscale: 'False'
-    average: '1.0'
-    axislabels: 'True'
-    bw: samp_rate
-    color1: '"blue"'
-    color10: '"dark blue"'
-    color2: '"red"'
-    color3: '"green"'
-    color4: '"black"'
-    color5: '"cyan"'
-    color6: '"magenta"'
-    color7: '"yellow"'
-    color8: '"dark red"'
-    color9: '"dark green"'
-    comment: ''
-    ctrlpanel: 'False'
-    fc: '0'
-    fftsize: '1024'
-    freqhalf: 'True'
-    grid: 'False'
-    gui_hint: ''
-    label: Relative Gain
-    label1: ''
-    label10: ''''''
-    label2: ''''''
-    label3: ''''''
-    label4: ''''''
-    label5: ''''''
-    label6: ''''''
-    label7: ''''''
-    label8: ''''''
-    label9: ''''''
-    legend: 'True'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    name: '""'
-    nconnections: '1'
-    norm_window: 'False'
-    showports: 'False'
-    tr_chan: '0'
-    tr_level: '0.0'
-    tr_mode: qtgui.TRIG_MODE_FREE
-    tr_tag: '""'
-    type: float
-    units: dB
-    update_time: '0.10'
-    width1: '1'
-    width10: '1'
-    width2: '1'
-    width3: '1'
-    width4: '1'
-    width5: '1'
-    width6: '1'
-    width7: '1'
-    width8: '1'
-    width9: '1'
-    wintype: window.WIN_BLACKMAN_hARRIS
-    ymax: '10'
-    ymin: '-140'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [592, 384.0]
     rotation: 0
     state: enabled
 - name: uhd_usrp_source_0
@@ -780,16 +647,15 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [96, 256.0]
+    coordinate: [104, 256.0]
     rotation: 0
     state: enabled
 
 connections:
-- [analog_nbfm_rx_0, '0', band_pass_filter_0, '0']
-- [analog_nbfm_rx_0, '0', qtgui_freq_sink_x_1, '0']
-- [band_pass_filter_0, '0', audio_sink_0_0, '0']
-- [uhd_usrp_source_0, '0', analog_nbfm_rx_0, '0']
-- [uhd_usrp_source_0, '0', qtgui_freq_sink_x_0, '0']
+- [analog_pll_freqdet_cf_0, '0', blocks_multiply_const_vxx_0, '0']
+- [blocks_multiply_const_vxx_0, '0', fir_filter_xxx_0, '0']
+- [fir_filter_xxx_0, '0', audio_sink_0_0, '0']
+- [uhd_usrp_source_0, '0', analog_pll_freqdet_cf_0, '0']
 
 metadata:
   file_format: 1
