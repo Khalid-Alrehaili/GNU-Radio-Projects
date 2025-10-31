@@ -2,7 +2,7 @@
 A collection of different projects made with GNU Radio that are focusing on communcation and radar systems. These projects can be just a simulation for certain systems or it can be with [*Software Defined Radios* (SDRs)](https://en.wikipedia.org/wiki/Software-defined_radio).
 
 ## *Software Defined Radios* (SDRs) Used:
-1- [ADLAM-PLUTO SDR](https://www.analog.com/en/resources/evaluation-hardware-and-software/evaluation-boards-kits/adalm-pluto.html)
+1. [ADLAM-PLUTO SDR](https://www.analog.com/en/resources/evaluation-hardware-and-software/evaluation-boards-kits/adalm-pluto.html)
 	- Compact, low-cost SDR from Analog Devices  
 	- Frequency range: 325 MHz – 3.8 GHz  
 	- TX/RX with up to 20 MHz bandwidth  
@@ -10,7 +10,7 @@ A collection of different projects made with GNU Radio that are focusing on comm
 	- Ideal for learning, experiments, and prototyping  
 	- Works with GNU Radio, MATLAB, etc.  
 
-2- [USRP B200mini](https://www.ettus.com/all-products/usrp-b200mini/)
+2. [USRP B200mini](https://www.ettus.com/all-products/usrp-b200mini/)
 	- High-performance SDR from Ettus Research  
 	- Frequency range: 70 MHz – 6 GHz  
 	- Full-duplex TX/RX, up to 56 MHz bandwidth  
