@@ -135,7 +135,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1192, 352.0]
+    coordinate: [1216, 344.0]
     rotation: 0
     state: enabled
 - name: blocks_multiply_const_vxx_0
@@ -184,7 +184,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [136, 276.0]
+    coordinate: [120, 276.0]
     rotation: 0
     state: enabled
 - name: low_pass_filter_0

@@ -5,9 +5,9 @@
 # SPDX-License-Identifier: GPL-3.0
 #
 # GNU Radio Python Flow Graph
-# Title: Not titled yet
-# Author: kald0n
-# GNU Radio version: 3.10.10.0
+# Title: FM_Receiver
+# Author: khalid alrehaili
+# GNU Radio version: 3.10.12.0
 
 from PyQt5 import Qt
 from gnuradio import qtgui
@@ -28,15 +28,16 @@ from gnuradio import eng_notation
 from gnuradio import uhd
 import time
 import sip
+import threading
 
 
 
 class FM_Receiver(gr.top_block, Qt.QWidget):
 
     def __init__(self):
-        gr.top_block.__init__(self, "Not titled yet", catch_exceptions=True)
+        gr.top_block.__init__(self, "FM_Receiver", catch_exceptions=True)
         Qt.QWidget.__init__(self)
-        self.setWindowTitle("Not titled yet")
+        self.setWindowTitle("FM_Receiver")
         qtgui.util.check_set_qss()
         try:
             self.setWindowIcon(Qt.QIcon.fromTheme('gnuradio-grc'))
@@ -54,7 +55,7 @@ class FM_Receiver(gr.top_block, Qt.QWidget):
         self.top_grid_layout = Qt.QGridLayout()
         self.top_layout.addLayout(self.top_grid_layout)
 
-        self.settings = Qt.QSettings("GNU Radio", "FM_Receiver")
+        self.settings = Qt.QSettings("gnuradio/flowgraphs", "FM_Receiver")
 
         try:
             geometry = self.settings.value("geometry")
@@ -62,11 +63,15 @@ class FM_Receiver(gr.top_block, Qt.QWidget):
                 self.restoreGeometry(geometry)
         except BaseException as exc:
             print(f"Qt GUI: Could not restore geometry: {str(exc)}", file=sys.stderr)
+        self.flowgraph_started = threading.Event()
 
         ##################################################
         # Variables
         ##################################################
-        self.samp_rate = samp_rate = int(4.8e5)
+        self.decimation = decimation = 10
+        self.threshold = threshold = (-50)
+        self.samp_rate = samp_rate = int(48e3*decimation)
+        self.rf_gain = rf_gain = 0
         self.freq = freq = int(96.8e6)
         self.amp = amp = 1
 
@@ -74,6 +79,9 @@ class FM_Receiver(gr.top_block, Qt.QWidget):
         # Blocks
         ##################################################
 
+        self._threshold_range = qtgui.Range((-120), 0, 1, (-50), 200)
+        self._threshold_win = qtgui.RangeWidget(self._threshold_range, self.set_threshold, "threshold", "counter_slider", int, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._threshold_win)
         self._freq_range = qtgui.Range(int(80e6), int(110e6), int(0.1e6), int(96.8e6), 200)
         self._freq_win = qtgui.RangeWidget(self._freq_range, self.set_freq, "freq", "counter_slider", int, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._freq_win)
@@ -81,7 +89,7 @@ class FM_Receiver(gr.top_block, Qt.QWidget):
         self._amp_win = qtgui.RangeWidget(self._amp_range, self.set_amp, "amp", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._amp_win)
         self.uhd_usrp_source_0 = uhd.usrp_source(
-            ",".join(("", '')),
+            ",".join(("serial=321CB0C", '')),
             uhd.stream_args(
                 cpu_format="fc32",
                 args='',
@@ -89,11 +97,17 @@ class FM_Receiver(gr.top_block, Qt.QWidget):
             ),
         )
         self.uhd_usrp_source_0.set_samp_rate(samp_rate)
-        self.uhd_usrp_source_0.set_time_unknown_pps(uhd.time_spec(0))
+        self.uhd_usrp_source_0.set_time_now(uhd.time_spec(time.time()), uhd.ALL_MBOARDS)
 
         self.uhd_usrp_source_0.set_center_freq(freq, 0)
         self.uhd_usrp_source_0.set_antenna("TX/RX", 0)
+        self.uhd_usrp_source_0.set_bandwidth(120e3, 0)
         self.uhd_usrp_source_0.set_rx_agc(True, 0)
+        self.uhd_usrp_source_0.set_auto_dc_offset(False, 0)
+        self.uhd_usrp_source_0.set_auto_iq_balance(True, 0)
+        self._rf_gain_range = qtgui.Range(0, 1, 0.001, 0, 200)
+        self._rf_gain_win = qtgui.RangeWidget(self._rf_gain_range, self.set_rf_gain, "rf_gain", "counter_slider", float, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._rf_gain_win)
         self.qtgui_freq_sink_x_0 = qtgui.freq_sink_c(
             1024, #size
             window.WIN_BLACKMAN_hARRIS, #wintype
@@ -141,17 +155,17 @@ class FM_Receiver(gr.top_block, Qt.QWidget):
             firdes.low_pass(
                 1,
                 samp_rate,
-                50e3,
+                75e3,
                 1e3,
                 window.WIN_HAMMING,
                 6.76))
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_ff(amp)
-        self.audio_sink_0 = audio.sink(48000, '', True)
+        self.audio_sink_0 = audio.sink(48000, 'plughw:1,0', True)
         self.analog_wfm_rcv_0 = analog.wfm_rcv(
-        	quad_rate=(int(samp_rate/10)),
-        	audio_decimation=10,
+        	quad_rate=int(samp_rate),
+        	audio_decimation=decimation,
         )
-        self.analog_simple_squelch_cc_0 = analog.simple_squelch_cc((-50), 1)
+        self.analog_simple_squelch_cc_0 = analog.simple_squelch_cc(threshold, 1)
 
 
         ##################################################
@@ -166,21 +180,41 @@ class FM_Receiver(gr.top_block, Qt.QWidget):
 
 
     def closeEvent(self, event):
-        self.settings = Qt.QSettings("GNU Radio", "FM_Receiver")
+        self.settings = Qt.QSettings("gnuradio/flowgraphs", "FM_Receiver")
         self.settings.setValue("geometry", self.saveGeometry())
         self.stop()
         self.wait()
 
         event.accept()
 
+    def get_decimation(self):
+        return self.decimation
+
+    def set_decimation(self, decimation):
+        self.decimation = decimation
+        self.set_samp_rate(int(48e3*self.decimation))
+
+    def get_threshold(self):
+        return self.threshold
+
+    def set_threshold(self, threshold):
+        self.threshold = threshold
+        self.analog_simple_squelch_cc_0.set_threshold(self.threshold)
+
     def get_samp_rate(self):
         return self.samp_rate
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.samp_rate, 50e3, 1e3, window.WIN_HAMMING, 6.76))
+        self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.samp_rate, 75e3, 1e3, window.WIN_HAMMING, 6.76))
         self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate)
         self.uhd_usrp_source_0.set_samp_rate(self.samp_rate)
+
+    def get_rf_gain(self):
+        return self.rf_gain
+
+    def set_rf_gain(self, rf_gain):
+        self.rf_gain = rf_gain
 
     def get_freq(self):
         return self.freq
@@ -206,6 +240,7 @@ def main(top_block_cls=FM_Receiver, options=None):
     tb = top_block_cls()
 
     tb.start()
+    tb.flowgraph_started.set()
 
     tb.show()
 

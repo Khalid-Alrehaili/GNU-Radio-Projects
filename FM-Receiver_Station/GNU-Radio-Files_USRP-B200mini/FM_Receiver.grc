@@ -51,7 +51,19 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [496, 4.0]
+    coordinate: [384, 8.0]
+    rotation: 0
+    state: enabled
+- name: decimation
+  id: variable
+  parameters:
+    comment: ''
+    value: '10'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [160, 80.0]
     rotation: 0
     state: enabled
 - name: freq
@@ -72,19 +84,61 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [336, 4.0]
+    coordinate: [256, 8.0]
+    rotation: 0
+    state: enabled
+- name: rf_gain
+  id: variable_qtgui_range
+  parameters:
+    comment: ''
+    gui_hint: ''
+    label: rf_gain
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: float
+    start: '0'
+    step: '0.001'
+    stop: '1'
+    value: '0'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 112.0]
     rotation: 0
     state: enabled
 - name: samp_rate
   id: variable
   parameters:
     comment: ''
-    value: int(4.8e5)
+    value: int(48e3*decimation)
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [224, 8.0]
+    coordinate: [160, 8.0]
+    rotation: 0
+    state: enabled
+- name: threshold
+  id: variable_qtgui_range
+  parameters:
+    comment: ''
+    gui_hint: ''
+    label: threshold
+    min_len: '200'
+    orient: QtCore.Qt.Horizontal
+    rangeType: int
+    start: '-120'
+    step: '1'
+    stop: '0'
+    value: '-50'
+    widget: counter_slider
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [488, 8.0]
     rotation: 0
     state: enabled
 - name: analog_simple_squelch_cc_0
@@ -96,12 +150,12 @@ blocks:
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
-    threshold: '-50'
+    threshold: threshold
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [616, 344.0]
+    coordinate: [640, 344.0]
     rotation: 0
     state: enabled
 - name: analog_wfm_rcv_0
@@ -109,25 +163,43 @@ blocks:
   parameters:
     affinity: ''
     alias: ''
-    audio_decimation: '10'
+    audio_decimation: decimation
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
-    quad_rate: int(samp_rate/10)
+    quad_rate: int(samp_rate)
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [800, 344.0]
+    coordinate: [816, 344.0]
     rotation: 0
     state: enabled
+- name: analog_wfm_rcv_pll_0
+  id: analog_wfm_rcv_pll
+  parameters:
+    affinity: ''
+    alias: ''
+    audio_decimation: '5'
+    comment: ''
+    deemph_tau: 75e-6
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    quad_rate: samp_rate
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [632, 424.0]
+    rotation: 0
+    state: disabled
 - name: audio_sink_0
   id: audio_sink
   parameters:
     affinity: ''
     alias: ''
     comment: ''
-    device_name: ''
+    device_name: plughw:1,0
     num_inputs: '1'
     ok_to_block: 'True'
     samp_rate: '48000'
@@ -135,7 +207,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1192, 352.0]
+    coordinate: [1168, 344.0]
     rotation: 0
     state: enabled
 - name: blocks_multiply_const_vxx_0
@@ -163,7 +235,7 @@ blocks:
     alias: ''
     beta: '6.76'
     comment: ''
-    cutoff_freq: 50e3
+    cutoff_freq: 75e3
     decim: '1'
     gain: '1'
     interp: '1'
@@ -298,7 +370,7 @@ blocks:
     ant7: '"RX2"'
     ant8: '"RX2"'
     ant9: '"RX2"'
-    bw0: '0'
+    bw0: 120e3
     bw1: '0'
     bw10: '0'
     bw11: '0'
@@ -404,7 +476,7 @@ blocks:
     dc_offs7: 0+0j
     dc_offs8: 0+0j
     dc_offs9: 0+0j
-    dc_offs_enb0: default
+    dc_offs_enb0: disabled
     dc_offs_enb1: default
     dc_offs_enb10: default
     dc_offs_enb11: default
@@ -436,9 +508,9 @@ blocks:
     dc_offs_enb7: default
     dc_offs_enb8: default
     dc_offs_enb9: default
-    dev_addr: '""'
+    dev_addr: '"serial=321CB0C"'
     dev_args: ''
-    gain0: '0'
+    gain0: rf_gain
     gain1: '0'
     gain10: '0'
     gain11: '0'
@@ -470,7 +542,7 @@ blocks:
     gain7: '0'
     gain8: '0'
     gain9: '0'
-    gain_type0: default
+    gain_type0: normalized
     gain_type1: default
     gain_type10: default
     gain_type11: default
@@ -534,7 +606,7 @@ blocks:
     iq_imbal7: 0+0j
     iq_imbal8: 0+0j
     iq_imbal9: 0+0j
-    iq_imbal_enb0: default
+    iq_imbal_enb0: auto
     iq_imbal_enb1: default
     iq_imbal_enb10: default
     iq_imbal_enb11: default
@@ -680,7 +752,7 @@ blocks:
     start_time: '-1.0'
     stream_args: ''
     stream_chans: '[]'
-    sync: sync
+    sync: pc_clock
     time_source0: ''
     time_source1: ''
     time_source2: ''
@@ -703,6 +775,7 @@ connections:
 - [analog_wfm_rcv_0, '0', blocks_multiply_const_vxx_0, '0']
 - [blocks_multiply_const_vxx_0, '0', audio_sink_0, '0']
 - [low_pass_filter_0, '0', analog_simple_squelch_cc_0, '0']
+- [low_pass_filter_0, '0', analog_wfm_rcv_pll_0, '0']
 - [uhd_usrp_source_0, '0', low_pass_filter_0, '0']
 - [uhd_usrp_source_0, '0', qtgui_freq_sink_x_0, '0']
 
