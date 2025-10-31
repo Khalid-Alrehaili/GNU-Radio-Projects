@@ -175,24 +175,6 @@ blocks:
     coordinate: [816, 344.0]
     rotation: 0
     state: enabled
-- name: analog_wfm_rcv_pll_0
-  id: analog_wfm_rcv_pll
-  parameters:
-    affinity: ''
-    alias: ''
-    audio_decimation: '5'
-    comment: ''
-    deemph_tau: 75e-6
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    quad_rate: samp_rate
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [632, 424.0]
-    rotation: 0
-    state: disabled
 - name: audio_sink_0
   id: audio_sink
   parameters:
@@ -207,7 +189,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1168, 344.0]
+    coordinate: [1176, 344.0]
     rotation: 0
     state: enabled
 - name: blocks_multiply_const_vxx_0
@@ -606,7 +588,7 @@ blocks:
     iq_imbal7: 0+0j
     iq_imbal8: 0+0j
     iq_imbal9: 0+0j
-    iq_imbal_enb0: auto
+    iq_imbal_enb0: disabled
     iq_imbal_enb1: default
     iq_imbal_enb10: default
     iq_imbal_enb11: default
@@ -775,7 +757,6 @@ connections:
 - [analog_wfm_rcv_0, '0', blocks_multiply_const_vxx_0, '0']
 - [blocks_multiply_const_vxx_0, '0', audio_sink_0, '0']
 - [low_pass_filter_0, '0', analog_simple_squelch_cc_0, '0']
-- [low_pass_filter_0, '0', analog_wfm_rcv_pll_0, '0']
 - [uhd_usrp_source_0, '0', low_pass_filter_0, '0']
 - [uhd_usrp_source_0, '0', qtgui_freq_sink_x_0, '0']
 

@@ -104,7 +104,7 @@ class FM_Receiver(gr.top_block, Qt.QWidget):
         self.uhd_usrp_source_0.set_bandwidth(120e3, 0)
         self.uhd_usrp_source_0.set_rx_agc(True, 0)
         self.uhd_usrp_source_0.set_auto_dc_offset(False, 0)
-        self.uhd_usrp_source_0.set_auto_iq_balance(True, 0)
+        self.uhd_usrp_source_0.set_auto_iq_balance(False, 0)
         self._rf_gain_range = qtgui.Range(0, 1, 0.001, 0, 200)
         self._rf_gain_win = qtgui.RangeWidget(self._rf_gain_range, self.set_rf_gain, "rf_gain", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._rf_gain_win)

@@ -51,7 +51,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [384, 8.0]
+    coordinate: [392, 8.0]
     rotation: 0
     state: enabled
 - name: freq_Tx
@@ -66,7 +66,7 @@ blocks:
     start: 47e6
     step: 25e6
     stop: 6e9
-    value: int(1.59e9)
+    value: int(1.234e9)
     widget: counter_slider
   states:
     bus_sink: false
@@ -116,7 +116,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [416, 216.0]
+    coordinate: [440, 216.0]
     rotation: 0
     state: enabled
 - name: band_pass_filter_0
@@ -144,31 +144,13 @@ blocks:
     coordinate: [224, 196.0]
     rotation: 0
     state: enabled
-- name: blocks_vco_c_0
-  id: blocks_vco_c
-  parameters:
-    affinity: ''
-    alias: ''
-    amplitude: '1'
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    samp_rate: quad_rate
-    sensitivity: 2*pi*75e3
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [568, 452.0]
-    rotation: 0
-    state: disabled
 - name: blocks_wavfile_source_0
   id: blocks_wavfile_source
   parameters:
     affinity: ''
     alias: ''
     comment: ''
-    file: audio.wav
+    file: audio.mp3
     maxoutbuf: '0'
     minoutbuf: '0'
     nchan: '1'
@@ -198,12 +180,12 @@ blocks:
     len_tag_key: ''
     samplerate: quad_rate
     type: fc32
-    uri: 192.168.2.2
+    uri: ''
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [664, 188.0]
+    coordinate: [720, 188.0]
     rotation: 0
     state: enabled
 - name: import_0
@@ -223,8 +205,6 @@ blocks:
 connections:
 - [analog_wfm_tx_0, '0', iio_pluto_sink_0, '0']
 - [band_pass_filter_0, '0', analog_wfm_tx_0, '0']
-- [band_pass_filter_0, '0', blocks_vco_c_0, '0']
-- [blocks_vco_c_0, '0', iio_pluto_sink_0, '0']
 - [blocks_wavfile_source_0, '0', band_pass_filter_0, '0']
 
 metadata:

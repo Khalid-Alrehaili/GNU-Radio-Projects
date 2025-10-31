@@ -67,21 +67,22 @@ class AM_Transmitter_ADALM_PLUTO(gr.top_block, Qt.QWidget):
         ##################################################
         self.interpolation = interpolation = 2
         self.samp_rate = samp_rate = int(48e3*interpolation)
-        self.freq_Tx = freq_Tx = (0.591e9)
+        self.freq_Tx = freq_Tx = (1.234e9)
+        self.adjust = adjust = 0
         self.Tx_Attenuation = Tx_Attenuation = 10
 
         ##################################################
         # Blocks
         ##################################################
 
-        self._freq_Tx_range = qtgui.Range(47e6, 6e9, 1e6, (0.591e9), 200)
+        self._freq_Tx_range = qtgui.Range(47e6, 6e9, 1e6, (1.234e9), 200)
         self._freq_Tx_win = qtgui.RangeWidget(self._freq_Tx_range, self.set_freq_Tx, "freq_Tx", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._freq_Tx_win)
         self._Tx_Attenuation_range = qtgui.Range(0, 89, 1, 10, 200)
         self._Tx_Attenuation_win = qtgui.RangeWidget(self._Tx_Attenuation_range, self.set_Tx_Attenuation, "'Tx_Attenuation'", "counter_slider", float, QtCore.Qt.Horizontal)
         self.top_layout.addWidget(self._Tx_Attenuation_win)
-        self.qtgui_sink_x_0 = qtgui.sink_f(
-            32768, #fftsize
+        self.qtgui_sink_x_0 = qtgui.sink_c(
+            1024, #fftsize
             window.WIN_BLACKMAN_hARRIS, #wintype
             0, #fc
             samp_rate, #bw
@@ -103,7 +104,7 @@ class AM_Transmitter_ADALM_PLUTO(gr.top_block, Qt.QWidget):
             interpolation,
             firdes.low_pass(
                 2,
-                samp_rate,
+                (samp_rate/2),
                 10e3,
                 1e3,
                 window.WIN_HAMMING,
@@ -115,18 +116,22 @@ class AM_Transmitter_ADALM_PLUTO(gr.top_block, Qt.QWidget):
         self.iio_pluto_sink_0.set_samplerate(samp_rate)
         self.iio_pluto_sink_0.set_attenuation(0, Tx_Attenuation)
         self.iio_pluto_sink_0.set_filter_params('Auto', '', 0, 0)
-        self.blocks_wavfile_source_0 = blocks.wavfile_source('audio.wav', True)
+        self.blocks_wavfile_source_0 = blocks.wavfile_source('audio.mp3', True)
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_ff(1)
         self.blocks_float_to_complex_0 = blocks.float_to_complex(1)
         self.blocks_add_const_vxx_0 = blocks.add_const_ff(0.1)
+        self._adjust_range = qtgui.Range(-100e3, 100e3, 0.1, 0, 200)
+        self._adjust_win = qtgui.RangeWidget(self._adjust_range, self.set_adjust, "adjust", "counter_slider", float, QtCore.Qt.Horizontal)
+        self.top_layout.addWidget(self._adjust_win)
 
 
         ##################################################
         # Connections
         ##################################################
+        self.connect((self.blocks_add_const_vxx_0, 0), (self.blocks_float_to_complex_0, 1))
         self.connect((self.blocks_add_const_vxx_0, 0), (self.blocks_float_to_complex_0, 0))
-        self.connect((self.blocks_add_const_vxx_0, 0), (self.qtgui_sink_x_0, 0))
         self.connect((self.blocks_float_to_complex_0, 0), (self.iio_pluto_sink_0, 0))
+        self.connect((self.blocks_float_to_complex_0, 0), (self.qtgui_sink_x_0, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.blocks_add_const_vxx_0, 0))
         self.connect((self.blocks_wavfile_source_0, 0), (self.low_pass_filter_0, 0))
         self.connect((self.low_pass_filter_0, 0), (self.blocks_multiply_const_vxx_0, 0))
@@ -153,7 +158,7 @@ class AM_Transmitter_ADALM_PLUTO(gr.top_block, Qt.QWidget):
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
         self.iio_pluto_sink_0.set_samplerate(self.samp_rate)
-        self.low_pass_filter_0.set_taps(firdes.low_pass(2, self.samp_rate, 10e3, 1e3, window.WIN_HAMMING, 6.76))
+        self.low_pass_filter_0.set_taps(firdes.low_pass(2, (self.samp_rate/2), 10e3, 1e3, window.WIN_HAMMING, 6.76))
         self.qtgui_sink_x_0.set_frequency_range(0, self.samp_rate)
 
     def get_freq_Tx(self):
@@ -162,6 +167,12 @@ class AM_Transmitter_ADALM_PLUTO(gr.top_block, Qt.QWidget):
     def set_freq_Tx(self, freq_Tx):
         self.freq_Tx = freq_Tx
         self.iio_pluto_sink_0.set_frequency(int(self.freq_Tx))
+
+    def get_adjust(self):
+        return self.adjust
+
+    def set_adjust(self, adjust):
+        self.adjust = adjust
 
     def get_Tx_Attenuation(self):
         return self.Tx_Attenuation
