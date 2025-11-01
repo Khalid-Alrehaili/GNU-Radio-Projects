@@ -67,7 +67,9 @@ class FM_Receiver(gr.top_block, Qt.QWidget):
         ##################################################
         # Variables
         ##################################################
-        self.samp_rate = samp_rate = int(4.8e5)
+        self.samp_rate = samp_rate = int(48e3)
+        self.interpolation = interpolation = 4
+        self.quad_rate = quad_rate = samp_rate*interpolation
         self.freq = freq = int(96.8e6)
         self.amp = amp = 1
 
@@ -124,15 +126,15 @@ class FM_Receiver(gr.top_block, Qt.QWidget):
             1,
             firdes.low_pass(
                 1,
-                samp_rate,
-                50e3,
+                quad_rate,
+                75e3,
                 1e3,
                 window.WIN_HAMMING,
                 6.76))
         self.iio_pluto_source_0 = iio.fmcomms2_source_fc32('' if '' else iio.get_pluto_uri(), [True, True], 32768)
         self.iio_pluto_source_0.set_len_tag_key('packet_len')
-        self.iio_pluto_source_0.set_frequency(int(325e6))
-        self.iio_pluto_source_0.set_samplerate(samp_rate)
+        self.iio_pluto_source_0.set_frequency(int(1.59e9))
+        self.iio_pluto_source_0.set_samplerate(quad_rate)
         self.iio_pluto_source_0.set_gain_mode(0, 'slow_attack')
         self.iio_pluto_source_0.set_gain(0, 64)
         self.iio_pluto_source_0.set_quadrature(True)
@@ -145,21 +147,19 @@ class FM_Receiver(gr.top_block, Qt.QWidget):
         self.blocks_multiply_const_vxx_0 = blocks.multiply_const_ff(amp)
         self.audio_sink_0 = audio.sink(48000, 'plughw:1,0', True)
         self.analog_wfm_rcv_0 = analog.wfm_rcv(
-        	quad_rate=(int(samp_rate/10)),
-        	audio_decimation=10,
+        	quad_rate=quad_rate,
+        	audio_decimation=interpolation,
         )
-        self.analog_simple_squelch_cc_0 = analog.simple_squelch_cc((-50), 1)
 
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.analog_simple_squelch_cc_0, 0), (self.analog_wfm_rcv_0, 0))
         self.connect((self.analog_wfm_rcv_0, 0), (self.blocks_multiply_const_vxx_0, 0))
         self.connect((self.blocks_multiply_const_vxx_0, 0), (self.audio_sink_0, 0))
         self.connect((self.iio_pluto_source_0, 0), (self.low_pass_filter_0, 0))
         self.connect((self.iio_pluto_source_0, 0), (self.qtgui_freq_sink_x_0, 0))
-        self.connect((self.low_pass_filter_0, 0), (self.analog_simple_squelch_cc_0, 0))
+        self.connect((self.low_pass_filter_0, 0), (self.analog_wfm_rcv_0, 0))
 
 
     def closeEvent(self, event):
@@ -175,9 +175,23 @@ class FM_Receiver(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.iio_pluto_source_0.set_samplerate(self.samp_rate)
-        self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.samp_rate, 50e3, 1e3, window.WIN_HAMMING, 6.76))
+        self.set_quad_rate(self.samp_rate*self.interpolation)
         self.qtgui_freq_sink_x_0.set_frequency_range(0, self.samp_rate)
+
+    def get_interpolation(self):
+        return self.interpolation
+
+    def set_interpolation(self, interpolation):
+        self.interpolation = interpolation
+        self.set_quad_rate(self.samp_rate*self.interpolation)
+
+    def get_quad_rate(self):
+        return self.quad_rate
+
+    def set_quad_rate(self, quad_rate):
+        self.quad_rate = quad_rate
+        self.iio_pluto_source_0.set_samplerate(self.quad_rate)
+        self.low_pass_filter_0.set_taps(firdes.low_pass(1, self.quad_rate, 75e3, 1e3, window.WIN_HAMMING, 6.76))
 
     def get_freq(self):
         return self.freq

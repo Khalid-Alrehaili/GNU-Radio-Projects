@@ -45,7 +45,7 @@ blocks:
     start: 47e6
     step: 25e6
     stop: 6e9
-    value: int(1.234e9)
+    value: int(1.59e9)
     widget: counter_slider
   states:
     bus_sink: false
@@ -65,8 +65,8 @@ blocks:
     rangeType: float
     start: '0'
     step: '0.01'
-    stop: '1'
-    value: '0.5'
+    stop: '2'
+    value: '1'
     widget: counter_slider
   states:
     bus_sink: false
@@ -144,7 +144,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [808, 272.0]
+    coordinate: [832, 272.0]
     rotation: 0
     state: enabled
 - name: band_pass_filter_0
@@ -203,7 +203,7 @@ blocks:
     autoscale: 'False'
     average: '1.0'
     axislabels: 'True'
-    bw: samp_rate
+    bw: quad_rate
     color1: '"blue"'
     color10: '"dark blue"'
     color2: '"red"'
@@ -352,7 +352,7 @@ blocks:
   parameters:
     affinity: ''
     alias: ''
-    ant0: '"RX2"'
+    ant0: '"TX/RX"'
     ant1: '"RX2"'
     ant10: '"RX2"'
     ant11: '"RX2"'
@@ -384,7 +384,7 @@ blocks:
     ant7: '"RX2"'
     ant8: '"RX2"'
     ant9: '"RX2"'
-    bw0: '0'
+    bw0: 1e6
     bw1: '0'
     bw10: '0'
     bw11: '0'

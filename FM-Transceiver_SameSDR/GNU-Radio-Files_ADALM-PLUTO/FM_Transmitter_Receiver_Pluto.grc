@@ -33,48 +33,6 @@ options:
     state: enabled
 
 blocks:
-- name: amplification_Rx
-  id: variable_qtgui_range
-  parameters:
-    comment: ''
-    gui_hint: ''
-    label: amplification_Rx
-    min_len: '200'
-    orient: QtCore.Qt.Horizontal
-    rangeType: float
-    start: '0'
-    step: '0.1'
-    stop: '5'
-    value: '1'
-    widget: counter_slider
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [816, 16.0]
-    rotation: 0
-    state: enabled
-- name: amplification_Tx
-  id: variable_qtgui_range
-  parameters:
-    comment: ''
-    gui_hint: ''
-    label: amplification_Tx
-    min_len: '200'
-    orient: QtCore.Qt.Horizontal
-    rangeType: float
-    start: '0'
-    step: '0.1'
-    stop: '5'
-    value: '1'
-    widget: counter_slider
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [664, 16.0]
-    rotation: 0
-    state: enabled
 - name: attenuation
   id: variable_qtgui_range
   parameters:
@@ -179,7 +137,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [328, 224.0]
+    coordinate: [320, 224.0]
     rotation: 0
     state: enabled
 - name: analog_wfm_rcv_0
@@ -196,29 +154,9 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [488, 552.0]
+    coordinate: [320, 552.0]
     rotation: 0
     state: enabled
-- name: analog_wfm_tx_0
-  id: analog_wfm_tx
-  parameters:
-    affinity: ''
-    alias: ''
-    audio_rate: samp_rate
-    comment: ''
-    fh: '-1.0'
-    max_dev: 75e3
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    quad_rate: quad_rate
-    tau: 75e-6
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [336, 216.0]
-    rotation: 0
-    state: disabled
 - name: audio_sink_0
   id: audio_sink
   parameters:
@@ -233,43 +171,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [696, 560.0]
-    rotation: 0
-    state: enabled
-- name: blocks_multiply_const_vxx_0
-  id: blocks_multiply_const_vxx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    const: amplification_Tx
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [568, 256.0]
-    rotation: 0
-    state: enabled
-- name: blocks_multiply_const_vxx_0_0
-  id: blocks_multiply_const_vxx
-  parameters:
-    affinity: ''
-    alias: ''
-    comment: ''
-    const: amplification_Rx
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    type: complex
-    vlen: '1'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [296, 560.0]
+    coordinate: [536, 560.0]
     rotation: 0
     state: enabled
 - name: blocks_wavfile_source_0
@@ -278,7 +180,7 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    file: audio.wav
+    file: ../audio.mp3
     maxoutbuf: '0'
     minoutbuf: '0'
     nchan: '1'
@@ -308,12 +210,12 @@ blocks:
     len_tag_key: ''
     samplerate: quad_rate
     type: fc32
-    uri: 192.168.2.1
+    uri: ''
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [728, 196.0]
+    coordinate: [560, 196.0]
     rotation: 0
     state: enabled
 - name: iio_pluto_source_0
@@ -339,7 +241,7 @@ blocks:
     rfdc: 'True'
     samplerate: quad_rate
     type: fc32
-    uri: 192.168.2.1
+    uri: ''
   states:
     bus_sink: false
     bus_source: false
@@ -378,14 +280,11 @@ blocks:
     state: enabled
 
 connections:
-- [analog_nbfm_tx_0, '0', blocks_multiply_const_vxx_0, '0']
+- [analog_nbfm_tx_0, '0', iio_pluto_sink_0, '0']
 - [analog_wfm_rcv_0, '0', audio_sink_0, '0']
-- [blocks_multiply_const_vxx_0, '0', iio_pluto_sink_0, '0']
-- [blocks_multiply_const_vxx_0_0, '0', analog_wfm_rcv_0, '0']
 - [blocks_wavfile_source_0, '0', analog_nbfm_tx_0, '0']
-- [blocks_wavfile_source_0, '0', analog_wfm_tx_0, '0']
 - [blocks_wavfile_source_0, '0', qtgui_sink_x_0, '0']
-- [iio_pluto_source_0, '0', blocks_multiply_const_vxx_0_0, '0']
+- [iio_pluto_source_0, '0', analog_wfm_rcv_0, '0']
 
 metadata:
   file_format: 1

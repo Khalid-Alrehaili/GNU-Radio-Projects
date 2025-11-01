@@ -45,7 +45,7 @@ blocks:
     start: '0'
     step: '1'
     stop: '89'
-    value: '10'
+    value: '40'
     widget: counter_slider
   states:
     bus_sink: false
@@ -84,7 +84,7 @@ blocks:
     start: 47e6
     step: 25e6
     stop: 6e9
-    value: int(1.234e9)
+    value: int(1.59e9)
     widget: counter_slider
   states:
     bus_sink: false

@@ -181,7 +181,7 @@ blocks:
     affinity: ''
     alias: ''
     comment: ''
-    device_name: plughw:1,0
+    device_name: ''
     num_inputs: '1'
     ok_to_block: 'True'
     samp_rate: '48000'
@@ -352,7 +352,7 @@ blocks:
     ant7: '"RX2"'
     ant8: '"RX2"'
     ant9: '"RX2"'
-    bw0: 120e3
+    bw0: 160e3
     bw1: '0'
     bw10: '0'
     bw11: '0'

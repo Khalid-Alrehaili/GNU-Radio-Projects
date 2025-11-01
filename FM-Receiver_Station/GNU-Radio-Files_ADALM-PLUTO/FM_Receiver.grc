@@ -51,7 +51,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [496, 4.0]
+    coordinate: [392, 8.0]
     rotation: 0
     state: enabled
 - name: freq
@@ -72,36 +72,43 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [336, 4.0]
+    coordinate: [264, 8.0]
+    rotation: 0
+    state: enabled
+- name: interpolation
+  id: variable
+  parameters:
+    comment: ''
+    value: '4'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [8, 112.0]
+    rotation: 0
+    state: enabled
+- name: quad_rate
+  id: variable
+  parameters:
+    comment: ''
+    value: samp_rate*interpolation
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [168, 80.0]
     rotation: 0
     state: enabled
 - name: samp_rate
   id: variable
   parameters:
     comment: ''
-    value: int(4.8e5)
+    value: int(48e3)
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [224, 8.0]
-    rotation: 0
-    state: enabled
-- name: analog_simple_squelch_cc_0
-  id: analog_simple_squelch_cc
-  parameters:
-    affinity: ''
-    alias: ''
-    alpha: '1'
-    comment: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    threshold: '-50'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [616, 344.0]
+    coordinate: [168, 8.0]
     rotation: 0
     state: enabled
 - name: analog_wfm_rcv_0
@@ -109,16 +116,16 @@ blocks:
   parameters:
     affinity: ''
     alias: ''
-    audio_decimation: '10'
+    audio_decimation: interpolation
     comment: ''
     maxoutbuf: '0'
     minoutbuf: '0'
-    quad_rate: int(samp_rate/10)
+    quad_rate: quad_rate
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [800, 344.0]
+    coordinate: [632, 344.0]
     rotation: 0
     state: enabled
 - name: audio_sink_0
@@ -135,7 +142,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1216, 344.0]
+    coordinate: [1040, 352.0]
     rotation: 0
     state: enabled
 - name: blocks_multiply_const_vxx_0
@@ -153,7 +160,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [1008, 352.0]
+    coordinate: [832, 352.0]
     rotation: 0
     state: enabled
 - name: iio_pluto_source_0
@@ -161,14 +168,14 @@ blocks:
   parameters:
     affinity: ''
     alias: ''
-    bandwidth: '20000000'
+    bandwidth: int(200e3)
     bbdc: 'True'
     buffer_size: '32768'
     comment: ''
     filter: ''
     filter_source: '''Auto'''
     fpass: '0'
-    frequency: freq
+    frequency: int(1.59e9)
     fstop: '0'
     gain1: '''slow_attack'''
     len_tag_key: packet_len
@@ -177,7 +184,7 @@ blocks:
     minoutbuf: '0'
     quadrature: 'True'
     rfdc: 'True'
-    samplerate: samp_rate
+    samplerate: quad_rate
     type: fc32
     uri: ''
   states:
@@ -194,13 +201,13 @@ blocks:
     alias: ''
     beta: '6.76'
     comment: ''
-    cutoff_freq: 50e3
+    cutoff_freq: 75e3
     decim: '1'
     gain: '1'
     interp: '1'
     maxoutbuf: '0'
     minoutbuf: '0'
-    samp_rate: samp_rate
+    samp_rate: quad_rate
     type: fir_filter_ccf
     width: 1e3
     win: window.WIN_HAMMING
@@ -294,12 +301,11 @@ blocks:
     state: enabled
 
 connections:
-- [analog_simple_squelch_cc_0, '0', analog_wfm_rcv_0, '0']
 - [analog_wfm_rcv_0, '0', blocks_multiply_const_vxx_0, '0']
 - [blocks_multiply_const_vxx_0, '0', audio_sink_0, '0']
 - [iio_pluto_source_0, '0', low_pass_filter_0, '0']
 - [iio_pluto_source_0, '0', qtgui_freq_sink_x_0, '0']
-- [low_pass_filter_0, '0', analog_simple_squelch_cc_0, '0']
+- [low_pass_filter_0, '0', analog_wfm_rcv_0, '0']
 
 metadata:
   file_format: 1
